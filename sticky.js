@@ -29,6 +29,8 @@ const Sticky = function (configuration) {
 
   // Merge configs
   this.config = Object.assign(defaultConfig, config)
+
+  // Capture all the required data for calculations
   this.doc = document.documentElement
   this.target = this.config.target
   if (!this.target) {
@@ -48,10 +50,16 @@ const Sticky = function (configuration) {
   if (!this.element) {
     return console.error(`Sticky: ${this.target} element does not exist`)
   }
-  this.wrapElement();
+
+  // Wrap the element in an arbitray container so that we can safely use parentNode
+  this.wrapElement()
+  // Calculate the value of the sticky element from the top of the document
   this.setTop()
+  // Create all the required evenr listeners with this bound
   this.buildEventListeners()
+  // Trigger a resize event incase the element should be sticky already.
   this.resize()
+  // Add the element to sticky elements for global usage
   Sticky.elements[this.target] = this
 }
 
@@ -72,8 +80,9 @@ Sticky.prototype.buildEventListeners = function buildStickyEventListeners () {
 Sticky.prototype.scroll = function handleScrollEvents () {
   let scrollTop = this.scrollTop()
   let condition = false
+
+  // Calculate whether the element should be stuck or not based on the cofniguration
   if (this.config.minHeightElement) {
-  if(this.config.minHeightElement) {
     if (this.minHeight >= this.height) {
       if (this.method === 'attach') {
         if (scrollTop <= this.top) {
@@ -96,12 +105,12 @@ Sticky.prototype.scroll = function handleScrollEvents () {
       }
     }
   }
-
   if (condition) {
     this.stick()
   } else if (this.element.classList.contains(this.config.activeClass)) {
     this.unstick()
   }
+
   if (this.config.lowestElement) {
     const lowestTop = this.lowestElement.getBoundingClientRect().top
     this.lowestElementBottom = lowestTop + this.lowestElement.offsetHeight
@@ -117,9 +126,9 @@ Sticky.prototype.scroll = function handleScrollEvents () {
 
 // Wrap the element in a div for consistency
 Sticky.prototype.wrapElement = function wrapElementInArbitraryDiv () {
-  const wrapper = document.createElement('div');
+  const wrapper = document.createElement('div')
   wrapper.classList.add('sticky-wrapper')
-  this.element.parentNode.insertBefore(wrapper, this.element);
+  this.element.parentNode.insertBefore(wrapper, this.element)
   wrapper.appendChild(this.element)
 }
 
@@ -155,7 +164,7 @@ Sticky.prototype.stick = function () {
 }
 
 Sticky.prototype.unstick = function () {
-  if(this.config.fillHeight) {
+  if (this.config.fillHeight) {
     this.element.parentNode.style.paddingTop = null
   }
   this.element.classList.remove(this.config.activeClass)
