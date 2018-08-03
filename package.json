@@ -1,6 +1,6 @@
 {
   "name": "@butsandcats/sticky",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "ISC",
   "author": "George Butter",
   "description": "Front end sticky scrolling",
