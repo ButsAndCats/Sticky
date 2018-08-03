@@ -2,7 +2,7 @@
 @preserve
 Sticky
 Author: George Butter - github.com/butsandcats
-version v0.0.4
+version v0.0.5
 ISC License
 */
 
@@ -14,7 +14,6 @@ ISC License
   lowestOffset: distance above the lowest element
   fillHeight: add padding to the palce where the element was once it has become fixed
 */
-
 const Sticky = function (configuration) {
   const config = configuration || {}
   const defaultConfig = {
@@ -49,6 +48,7 @@ const Sticky = function (configuration) {
   if (!this.element) {
     return console.error(`Sticky: ${this.target} element does not exist`)
   }
+  this.wrapElement();
   this.setTop()
   this.buildEventListeners()
   this.resize()
@@ -58,7 +58,7 @@ const Sticky = function (configuration) {
 // Store all of ur elements in an object so they can be accessed globally
 Sticky.elements = {}
 // Version of sticky
-Sticky.version = '0.0.4'
+Sticky.version = '0.0.5'
 
 // Build the required event listeners
 Sticky.prototype.buildEventListeners = function buildStickyEventListeners () {
@@ -73,6 +73,7 @@ Sticky.prototype.scroll = function handleScrollEvents () {
   let scrollTop = this.scrollTop()
   let condition = false
   if (this.config.minHeightElement) {
+  if(this.config.minHeightElement) {
     if (this.minHeight >= this.height) {
       if (this.method === 'attach') {
         if (scrollTop <= this.top) {
@@ -114,6 +115,14 @@ Sticky.prototype.scroll = function handleScrollEvents () {
   }
 }
 
+// Wrap the element in a div for consistency
+Sticky.prototype.wrapElement = function wrapElementInArbitraryDiv () {
+  const wrapper = document.createElement('div');
+  wrapper.classList.add('sticky-wrapper')
+  this.element.parentNode.insertBefore(wrapper, this.element);
+  wrapper.appendChild(this.element)
+}
+
 Sticky.prototype.resize = function handleResizeEvents () {
   this.element.classList.remove(this.config.activeClass)
   this.height = this.element.offsetHeight
@@ -146,6 +155,9 @@ Sticky.prototype.stick = function () {
 }
 
 Sticky.prototype.unstick = function () {
+  if(this.config.fillHeight) {
+    this.element.parentNode.style.paddingTop = null
+  }
   this.element.classList.remove(this.config.activeClass)
   this.element.removeAttribute('style')
   if (this.width) {
