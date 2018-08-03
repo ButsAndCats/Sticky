@@ -124,3 +124,5 @@ Sticky.prototype.setTop = function setTheTopValue () {
   // Assign the top value depending on whether we are sticking it to the top or bottom
   this.top = this.position === 'bottom' ? elemOffset.top + elemOffset.height - window.innerHeight : elemOffset.top
 }
+
+export {Sticky}
