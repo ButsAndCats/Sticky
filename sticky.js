@@ -2,7 +2,7 @@
 @preserve
 Sticky
 Author: George Butter - github.com/butsandcats
-version v0.0.1
+version v0.0.2
 ISC License
 */
 
@@ -23,6 +23,9 @@ const Sticky = function (configuration) {
   this.config = Object.assign(defaultConfig, config)
   this.doc = document.documentElement
   this.target = this.config.target
+  if(!this.target) {
+    return console.error(`Sticky: No target element provided`)
+  }
   this.element = document.querySelector(this.target)
   this.containerElement = document.querySelector(this.config.container)
   this.lowestElement = document.querySelector(this.config.lowestElement)
@@ -31,7 +34,12 @@ const Sticky = function (configuration) {
   this.position = 'top'
   this.method = this.config.method || ''
   this.minHeightElement = document.querySelector(this.config.minHeightElement)
-  this.minHeight = this.minHeightElement.offsetHeight
+  if(this.minHeightElement) {
+    this.minHeight = this.minHeightElement.offsetHeight
+  }
+  if(!this.element) {
+    return console.error(`Sticky: ${this.target} element does not exist`)
+  }
   this.setTop()
   this.buildEventListeners()
   this.resize()
@@ -40,6 +48,8 @@ const Sticky = function (configuration) {
 
 // Store all of ur elements in an object so they can be accessed globally
 Sticky.elements = {}
+// Version of sticky
+Sticky.version = '0.0.2'
 
 // Build the required event listeners
 Sticky.prototype.buildEventListeners = function buildStickyEventListeners () {
@@ -122,7 +132,11 @@ Sticky.prototype.setTop = function setTheTopValue () {
   const elem = this.element
   const elemOffset = elem.getBoundingClientRect()
   // Assign the top value depending on whether we are sticking it to the top or bottom
-  this.top = this.position === 'bottom' ? elemOffset.top + elemOffset.height - window.innerHeight : elemOffset.top
+  if (this.position === 'bottom') {
+    this.top = elemOffset.top + elemOffset.height - window.innerHeight
+  } else {
+    this.top = elemOffset.top
+  }
 }
 
 export {Sticky}
