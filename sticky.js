@@ -2,8 +2,17 @@
 @preserve
 Sticky
 Author: George Butter - github.com/butsandcats
-version v0.0.2
+version v0.0.3
 ISC License
+*/
+
+/*
+  configuration
+  activeClass: the calss that will be applied to the element
+  method: Use attach if the element is already stuck and you wish for it to attach
+  lowestElement: fixed objects will remain stuck but go no lower than this elements
+  lowestOffset: distance above the lowest element
+  fillHeight: add padding to the palce where the element was once it has become fixed
 */
 
 const Sticky = function (configuration) {
@@ -12,18 +21,18 @@ const Sticky = function (configuration) {
     container: 'body',
     target: '[data-sticky]',
     activeClass: 'fixed',
-    top: 0,
     method: null,
     padding: null,
     lowestElement: null,
-    lowestOffset: 0
+    lowestOffset: 0,
+    fillHeight: null
   }
 
   // Merge configs
   this.config = Object.assign(defaultConfig, config)
   this.doc = document.documentElement
   this.target = this.config.target
-  if(!this.target) {
+  if (!this.target) {
     return console.error(`Sticky: No target element provided`)
   }
   this.element = document.querySelector(this.target)
@@ -34,10 +43,10 @@ const Sticky = function (configuration) {
   this.position = 'top'
   this.method = this.config.method || ''
   this.minHeightElement = document.querySelector(this.config.minHeightElement)
-  if(this.minHeightElement) {
+  if (this.minHeightElement) {
     this.minHeight = this.minHeightElement.offsetHeight
   }
-  if(!this.element) {
+  if (!this.element) {
     return console.error(`Sticky: ${this.target} element does not exist`)
   }
   this.setTop()
@@ -49,21 +58,33 @@ const Sticky = function (configuration) {
 // Store all of ur elements in an object so they can be accessed globally
 Sticky.elements = {}
 // Version of sticky
-Sticky.version = '0.0.2'
+Sticky.version = '0.0.3'
 
 // Build the required event listeners
 Sticky.prototype.buildEventListeners = function buildStickyEventListeners () {
-  document.removeEventListener('scroll', this.scroll.bind(this))
-  window.removeEventListener('resize', this.resize.bind(this))
-  window.removeEventListener('orientationchange', this.resize.bind(this))
+  document.addEventListener('scroll', this.scroll.bind(this))
+  window.addEventListener('load', this.resize.bind(this))
+  window.addEventListener('resize', this.resize.bind(this))
+  window.addEventListener('orientationchange', this.resize.bind(this))
 }
 
 // Handle on scroll event
 Sticky.prototype.scroll = function handleScrollEvents () {
   let scrollTop = this.scrollTop()
   let condition = false
-
-  if (this.minHeight >= this.height) {
+  if (this.config.minHeightElement) {
+    if (this.minHeight >= this.height) {
+      if (this.method === 'attach') {
+        if (scrollTop <= this.top) {
+          condition = true
+        }
+      } else {
+        if (scrollTop >= this.top) {
+          condition = true
+        }
+      }
+    }
+  } else {
     if (this.method === 'attach') {
       if (scrollTop <= this.top) {
         condition = true
@@ -76,23 +97,9 @@ Sticky.prototype.scroll = function handleScrollEvents () {
   }
 
   if (condition) {
-    if (!this.width) {
-      this.element.style.width = this.element.offsetWidth
-    }
-    this.element.classList.add(this.config.activeClass)
-    this.element.style.top = 0
-    if (this.postion !== 'bottom' && this.padding) {
-      this.containerElement.style.paddingTop = `${this.height}px`
-    }
-  } else if (this.element.classList.contains(this.config.active)) {
-    this.element.classList.remove(this.config.activeClass)
-    this.elemennt.removeAttribute('style')
-    if (this.width) {
-      this.element.style.width = 'auto'
-    }
-    if (this.position !== 'bottom' && this.padding) {
-      this.containerElement.style.paddingTop = 0
-    }
+    this.stick()
+  } else if (this.element.classList.contains(this.config.activeClass)) {
+    this.unstick()
   }
   if (this.config.lowestElement) {
     const lowestTop = this.lowestElement.getBoundingClientRect().top
@@ -109,7 +116,7 @@ Sticky.prototype.scroll = function handleScrollEvents () {
 
 Sticky.prototype.resize = function handleResizeEvents () {
   this.element.classList.remove(this.config.activeClass)
-  this.height = this.element.outerHeight
+  this.height = this.element.offsetHeight
   const computedWidth = this.element.parentNode.clientWidth
   if (!this.width) {
     this.element.style.width = computedWidth
@@ -124,6 +131,31 @@ Sticky.prototype.update = function () {
   this.scroll()
 }
 
+Sticky.prototype.stick = function () {
+  if (this.config.fillHeight) {
+    this.element.parentNode.style.paddingTop = `${this.height}px`
+  }
+  if (!this.width) {
+    this.element.style.width = this.element.offsetWidth
+  }
+  this.element.classList.add(this.config.activeClass)
+  this.element.style.top = 0
+  if (this.postion !== 'bottom' && this.padding) {
+    this.containerElement.style.paddingTop = `${this.height}px`
+  }
+}
+
+Sticky.prototype.unstick = function () {
+  this.element.classList.remove(this.config.activeClass)
+  this.element.removeAttribute('style')
+  if (this.width) {
+    this.element.style.width = 'auto'
+  }
+  if (this.position !== 'bottom' && this.padding) {
+    this.containerElement.style.paddingTop = 0
+  }
+}
+
 Sticky.prototype.scrollTop = function calculateTheDistanceScrolledFromTheTop () {
   return (window.pageYOffset || this.doc.scrollTop) - (this.doc.clientTop || 0)
 }
@@ -131,11 +163,13 @@ Sticky.prototype.scrollTop = function calculateTheDistanceScrolledFromTheTop () 
 Sticky.prototype.setTop = function setTheTopValue () {
   const elem = this.element
   const elemOffset = elem.getBoundingClientRect()
+  const scrollTop = this.scrollTop()
+  const docTop = elemOffset.top + scrollTop
   // Assign the top value depending on whether we are sticking it to the top or bottom
   if (this.position === 'bottom') {
-    this.top = elemOffset.top + elemOffset.height - window.innerHeight
+    this.top = docTop + elemOffset.height - window.innerHeight
   } else {
-    this.top = elemOffset.top
+    this.top = docTop
   }
 }
 

@@ -4,7 +4,7 @@
   "license": "ISC",
   "author": "George Butter",
   "description": "Front end sticky scrolling",
-  "main": "sticky.js",
+  "browser": "sticky.js",
   "keywords": [
     "Sticky",
     "Scrolling"
