@@ -1,0 +1,20 @@
+{
+  "name": "@butsandcats/sticky",
+  "version": "0.0.0",
+  "license": "ISC",
+  "author": "George Butter",
+  "description": "Front end sticky scrolling",
+  "main": "sticky.js",
+  "keywords": [
+    "Sticky",
+    "Scrolling"
+  ],
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.13.0"
+  },
+  "scripts": {
+    "test": "test"
+  }
+}
