@@ -12,7 +12,9 @@ ISC License
   method: Use attach if the element is already stuck and you wish for it to attach
   lowestElement: fixed objects will remain stuck but go no lower than this elements
   lowestOffset: distance above the lowest element
-  fillHeight: add padding to the palce where the element was once it has become fixed
+  fillHeight: add padding to the place where the element was once it has become fixed
+  heightElements: Array of selectors to get height from these elements instead of the target,
+                  good for variable height elements like accordions and navs
 */
 const Sticky = function (configuration) {
   const config = configuration || {}
@@ -20,6 +22,7 @@ const Sticky = function (configuration) {
     container: 'body',
     target: '[data-sticky]',
     activeClass: 'fixed',
+    heightElements: null,
     method: null,
     padding: null,
     lowestElement: null,
@@ -49,6 +52,13 @@ const Sticky = function (configuration) {
   }
   if (!this.element) {
     return console.error(`Sticky: ${this.target} element does not exist`)
+  }
+  this.heightElements = null;
+  if (this.config.heightElements) {
+    this.heightElements = [];
+    for (let elem = 0; elem < this.config.heightElements.length; elem += 1) {
+      this.heightElements.push(document.querySelector(this.config.heightElements[elem]))
+    }
   }
 
   // Wrap the element in an arbitray container so that we can safely use parentNode
@@ -132,9 +142,22 @@ Sticky.prototype.wrapElement = function wrapElementInArbitraryDiv () {
   wrapper.appendChild(this.element)
 }
 
+Sticky.prototype.setFillHeight = function calcaulateHowMuchPaddingToAddToTheWrapper () {
+  if (this.heightElements) {
+    let height = 0;
+    for (let elem = 0; elem < this.heightElements.length; elem += 1) {
+      height += this.heightElements[elem].offsetHeight
+    }
+    this.fillHeight = height;
+  } else {
+    this.fillHeight = this.height;
+  }
+}
+
 Sticky.prototype.resize = function handleResizeEvents () {
   this.element.classList.remove(this.config.activeClass)
   this.height = this.element.offsetHeight
+  this.setFillHeight();
   const computedWidth = this.element.parentNode.clientWidth
   if (!this.width) {
     this.element.style.width = computedWidth
@@ -145,13 +168,14 @@ Sticky.prototype.resize = function handleResizeEvents () {
 Sticky.prototype.update = function () {
   if (!this.element.classList.contains(this.config.active)) {
     this.height = this.element.offsetHeight
+    this.setFillHeight();
   }
   this.scroll()
 }
 
 Sticky.prototype.stick = function () {
   if (this.config.fillHeight) {
-    this.element.parentNode.style.paddingTop = `${this.height}px`
+    this.element.parentNode.style.paddingTop = `${this.fillHeight}px`
   }
   if (!this.width) {
     this.element.style.width = this.element.offsetWidth
