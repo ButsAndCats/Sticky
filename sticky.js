@@ -53,9 +53,9 @@ const Sticky = function (configuration) {
   if (!this.element) {
     return console.error(`Sticky: ${this.target} element does not exist`)
   }
-  this.heightElements = null;
+  this.heightElements = null
   if (this.config.heightElements) {
-    this.heightElements = [];
+    this.heightElements = []
     for (let elem = 0; elem < this.config.heightElements.length; elem += 1) {
       this.heightElements.push(document.querySelector(this.config.heightElements[elem]))
     }
@@ -144,20 +144,20 @@ Sticky.prototype.wrapElement = function wrapElementInArbitraryDiv () {
 
 Sticky.prototype.setFillHeight = function calcaulateHowMuchPaddingToAddToTheWrapper () {
   if (this.heightElements) {
-    let height = 0;
+    let height = 0
     for (let elem = 0; elem < this.heightElements.length; elem += 1) {
       height += this.heightElements[elem].offsetHeight
     }
-    this.fillHeight = height;
+    this.fillHeight = height
   } else {
-    this.fillHeight = this.height;
+    this.fillHeight = this.height
   }
 }
 
 Sticky.prototype.resize = function handleResizeEvents () {
   this.element.classList.remove(this.config.activeClass)
   this.height = this.element.offsetHeight
-  this.setFillHeight();
+  this.setFillHeight()
   const computedWidth = this.element.parentNode.clientWidth
   if (!this.width) {
     this.element.style.width = computedWidth
@@ -168,7 +168,7 @@ Sticky.prototype.resize = function handleResizeEvents () {
 Sticky.prototype.update = function () {
   if (!this.element.classList.contains(this.config.active)) {
     this.height = this.element.offsetHeight
-    this.setFillHeight();
+    this.setFillHeight()
   }
   this.scroll()
 }
