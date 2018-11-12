@@ -184,7 +184,6 @@ Sticky.prototype.stick = function () {
   }
 
   this.element.classList.add(this.config.activeClass)
-  this.element.style.top = 0
   if (this.postion !== 'bottom' && this.padding) {
     this.containerElement.style.paddingTop = `${this.height}px`
   }
