@@ -76,7 +76,7 @@ const Sticky = function (configuration) {
 // Store all of ur elements in an object so they can be accessed globally
 Sticky.elements = {}
 // Version of sticky
-Sticky.version = '0.0.6'
+Sticky.version = '0.0.8'
 
 // Build the required event listeners
 Sticky.prototype.buildEventListeners = function buildStickyEventListeners () {
