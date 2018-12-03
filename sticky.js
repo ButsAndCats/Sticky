@@ -152,14 +152,13 @@ Sticky.prototype.setFillHeight = function calcaulateHowMuchPaddingToAddToTheWrap
   } else {
     this.fillHeight = this.height
   }
-
 }
 
 Sticky.prototype.resize = function handleResizeEvents () {
   this.element.classList.remove(this.config.activeClass)
   this.height = this.element.offsetHeight
   this.setFillHeight()
-  const computedWidth = this.element.parentNode.clientWidth+'px'
+  const computedWidth = this.element.parentNode.clientWidth + 'px'
   if (!this.width) {
     this.element.style.width = computedWidth
   }
@@ -179,7 +178,7 @@ Sticky.prototype.stick = function () {
     this.element.parentNode.style.paddingTop = `${this.fillHeight}px`
   }
   if (!this.width) {
-    const computedWidth = this.element.parentNode.clientWidth+'px'
+    const computedWidth = this.element.parentNode.clientWidth + 'px'
     this.element.style.width = computedWidth
   }
 
